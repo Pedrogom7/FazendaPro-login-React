@@ -5,6 +5,8 @@ import cowIcon from "../assets/silhueta-de-vaca.png";
 import plusIcon from "../assets/mais.png";
 import threePoints from "../assets/3_pontos.png";
 import ninePoints from "../assets/9_pontos.png";
+import eyeIcon from "../assets/eye.png";
+import eyeSlashIcon from "../assets/eye-slash.png";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -13,11 +15,12 @@ export default function Login() {
   const [attempts, setAttempts] = useState(0);
   const [isBlocked, setIsBlocked] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
 
   const CORRECT_USERNAME = "admin";
   const CORRECT_PASSWORD = "admin";
   const MAX_ATTEMPTS = 10;
-  const BLOCK_TIME = 5 * 60 * 1000; // 5 minutos
+  const BLOCK_TIME = 5 * 60 * 1000;
 
   useEffect(() => {
     const savedAttempts = localStorage.getItem("attempts");
@@ -40,7 +43,6 @@ export default function Login() {
     }
   }, []);
 
-  // Timer de bloqueio corrigido
   useEffect(() => {
     if (isBlocked && timeLeft > 0) {
       const timer = setInterval(() => {
@@ -51,7 +53,7 @@ export default function Login() {
             setAttempts(0);
             localStorage.removeItem("attempts");
             localStorage.removeItem("blockedUntil");
-            setError(""); // remove mensagem de erro
+            setError("");
             return 0;
           }
           return prev - 1000;
@@ -73,21 +75,19 @@ export default function Login() {
       setUsername("");
       setPassword("");
     } else {
-      setAttempts((prev) => {
-        const newAttempts = prev + 1;
-        localStorage.setItem("attempts", newAttempts);
+      const newAttempts = attempts + 1;
+      setAttempts(newAttempts);
+      localStorage.setItem("attempts", newAttempts);
 
-        if (newAttempts >= MAX_ATTEMPTS) {
-          setIsBlocked(true);
-          const blockedUntil = Date.now() + BLOCK_TIME;
-          localStorage.setItem("blockedUntil", blockedUntil);
-          setTimeLeft(BLOCK_TIME);
-          setError(""); // limpa o erro "usuário ou senha incorretos"
-        } else {
-          setError("Usuário ou senha incorretos!");
-        }
-        return newAttempts;
-      });
+      if (newAttempts >= MAX_ATTEMPTS) {
+        setIsBlocked(true);
+        const blockedUntil = Date.now() + BLOCK_TIME;
+        localStorage.setItem("blockedUntil", blockedUntil);
+        setTimeLeft(BLOCK_TIME);
+        setError("");
+      } else {
+        setError("Usuário ou senha incorretos!");
+      }
     }
   };
 
@@ -104,6 +104,7 @@ export default function Login() {
       <img src={plusIcon} alt="Ícone de mais" className="plusIcon" />
       <img src={threePoints} alt="Ícone três pontos" className="threePointsIcon" />
       <img src={ninePoints} alt="Ícone nove pontos" className="ninePointsIcon" />
+      <img src={plusIcon} alt="Ícone de mais" className="plusIcon2" />
 
       {/* Logo */}
       <div className="login-left">
@@ -130,14 +131,27 @@ export default function Login() {
             className={`login-input ${error && !isBlocked ? "input-error" : ""}`}
             disabled={isBlocked}
           />
-          <input
-            type="password"
-            placeholder="Senha"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={`login-input ${error && !isBlocked ? "input-error" : ""}`}
-            disabled={isBlocked}
-          />
+
+          <div className="password-container">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Senha"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={`login-input ${error && !isBlocked ? "input-error" : ""}`}
+              disabled={isBlocked}
+            />
+            <img
+              src={showPassword ? eyeSlashIcon : eyeIcon}
+              alt="Mostrar senha"
+              className="eye-icon"
+              onMouseDown={() => setShowPassword(true)}
+              onMouseUp={() => setShowPassword(false)}
+              onMouseLeave={() => setShowPassword(false)}
+            />
+          </div>
+
+
           <div className="remember-me">
             <input type="checkbox" disabled={isBlocked} />
             <span>Lembre de mim</span>

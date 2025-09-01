@@ -31,6 +31,7 @@
 .login-card {
   background-color: #151615;
   padding: 40px;
+  padding-top: 25px;
   margin-right: -40px;
   border: 1px solid #1C1B1B;
   border-radius: 28px;
@@ -146,6 +147,15 @@
   cursor: pointer;
 }
 
+.plusIcon2 {
+  position: absolute;
+  bottom: 40px;
+  right: 50px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+
 /* Três pontos no canto superior direito */
 .threePointsIcon {
   position: absolute;
@@ -167,8 +177,28 @@
   cursor: pointer;
 }
 
+.password-container {
+  position: relative;
+  display: flex;
+  align-items: center;
 
-/* Rodapé */
+}
+
+.eye-icon {
+  position: absolute;
+  right: 15px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.password-container .login-input {
+  width: 100%;
+  padding-right: 40px;
+  box-sizing: border-box;
+}
+
+
 .footer {
   position: absolute;
   bottom: 60px;
