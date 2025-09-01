@@ -75,21 +75,27 @@ export default function Login() {
       setUsername("");
       setPassword("");
     } else {
-      const newAttempts = attempts + 1;
-      setAttempts(newAttempts);
-      localStorage.setItem("attempts", newAttempts);
+      setAttempts((prev) => {
+        const newAttempts = prev + 1;
+        localStorage.setItem("attempts", newAttempts);
 
-      if (newAttempts >= MAX_ATTEMPTS) {
-        setIsBlocked(true);
-        const blockedUntil = Date.now() + BLOCK_TIME;
-        localStorage.setItem("blockedUntil", blockedUntil);
-        setTimeLeft(BLOCK_TIME);
-        setError("");
-      } else {
-        setError("Usuário ou senha incorretos!");
-      }
+        if (newAttempts >= MAX_ATTEMPTS) {
+          setIsBlocked(true);
+          const blockedUntil = Date.now() + BLOCK_TIME;
+          localStorage.setItem("blockedUntil", blockedUntil);
+          setTimeLeft(BLOCK_TIME);
+          setError(""); // limpa o erro "usuário ou senha incorretos"
+        } else {
+          setError("Usuário ou senha incorretos!");
+          // 🔹 limpa os campos quando for erro normal
+          setUsername("");
+          setPassword("");
+        }
+        return newAttempts;
+      });
     }
   };
+
 
   const formatTime = (ms) => {
     const totalSeconds = Math.floor(ms / 1000);
@@ -143,13 +149,12 @@ export default function Login() {
             />
             <img
               src={showPassword ? eyeSlashIcon : eyeIcon}
-              alt="Mostrar senha"
+              alt={showPassword ? "Esconder senha" : "Mostrar senha"}
               className="eye-icon"
-              onMouseDown={() => setShowPassword(true)}
-              onMouseUp={() => setShowPassword(false)}
-              onMouseLeave={() => setShowPassword(false)}
+              onClick={() => setShowPassword((prev) => !prev)}
             />
           </div>
+
 
 
           <div className="remember-me">
