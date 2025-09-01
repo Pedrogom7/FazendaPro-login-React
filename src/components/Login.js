@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import "./Login.css";
 import logo from "../assets/logo.png";
 import cowIcon from "../assets/silhueta-de-vaca.png";
+import plusIcon from "../assets/mais.png";
+import threePoints from "../assets/3_pontos.png";
+import ninePoints from "../assets/9_pontos.png";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -14,7 +17,7 @@ export default function Login() {
   const CORRECT_USERNAME = "admin";
   const CORRECT_PASSWORD = "admin";
   const MAX_ATTEMPTS = 10;
-  const BLOCK_TIME = 5 * 60 * 1000;
+  const BLOCK_TIME = 5 * 60 * 1000; // 5 minutos
 
   useEffect(() => {
     const savedAttempts = localStorage.getItem("attempts");
@@ -37,11 +40,22 @@ export default function Login() {
     }
   }, []);
 
-  // Timer de bloqueio
+  // Timer de bloqueio corrigido
   useEffect(() => {
     if (isBlocked && timeLeft > 0) {
       const timer = setInterval(() => {
-        setTimeLeft((prev) => prev - 1000);
+        setTimeLeft((prev) => {
+          if (prev <= 1000) {
+            clearInterval(timer);
+            setIsBlocked(false);
+            setAttempts(0);
+            localStorage.removeItem("attempts");
+            localStorage.removeItem("blockedUntil");
+            setError(""); // remove mensagem de erro
+            return 0;
+          }
+          return prev - 1000;
+        });
       }, 1000);
       return () => clearInterval(timer);
     }
@@ -68,20 +82,12 @@ export default function Login() {
           const blockedUntil = Date.now() + BLOCK_TIME;
           localStorage.setItem("blockedUntil", blockedUntil);
           setTimeLeft(BLOCK_TIME);
-          setError("");
-          setTimeout(() => {
-            setIsBlocked(false);
-            setAttempts(0);
-            localStorage.removeItem("attempts");
-            localStorage.removeItem("blockedUntil");
-          }, BLOCK_TIME);
+          setError(""); // limpa o erro "usuário ou senha incorretos"
+        } else {
+          setError("Usuário ou senha incorretos!");
         }
         return newAttempts;
       });
-
-      if (!isBlocked) {
-        setError("Usuário ou senha incorretos!");
-      }
     }
   };
 
@@ -94,6 +100,11 @@ export default function Login() {
 
   return (
     <div className="login-container">
+      {/* Ícones */}
+      <img src={plusIcon} alt="Ícone de mais" className="plusIcon" />
+      <img src={threePoints} alt="Ícone três pontos" className="threePointsIcon" />
+      <img src={ninePoints} alt="Ícone nove pontos" className="ninePointsIcon" />
+
       {/* Logo */}
       <div className="login-left">
         <img src={logo} alt="Logo FazendaPro" className="logo" />
@@ -101,9 +112,7 @@ export default function Login() {
 
       {/* Card de login */}
       <div className="login-card">
-        {!isBlocked && error && (
-          <div className="error-banner">{error}</div>
-        )}
+        {!isBlocked && error && <div className="error-banner">{error}</div>}
         {isBlocked && (
           <div className="error-banner blocked">
             EXCESSO DE TENTATIVAS <br />
@@ -119,6 +128,7 @@ export default function Login() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className={`login-input ${error && !isBlocked ? "input-error" : ""}`}
+            disabled={isBlocked}
           />
           <input
             type="password"
@@ -126,9 +136,10 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className={`login-input ${error && !isBlocked ? "input-error" : ""}`}
+            disabled={isBlocked}
           />
           <div className="remember-me">
-            <input type="checkbox" />
+            <input type="checkbox" disabled={isBlocked} />
             <span>Lembre de mim</span>
           </div>
           <button
